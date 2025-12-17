@@ -203,11 +203,23 @@ function Parse-SettingsFile {
 # Profile Generator - Build profile content dynamically
 # ============================================================
 function Generate-ProfileContent {
-    param([hashtable]$Settings)
+    param(
+        [hashtable]$Settings,
+        [string]$OriginalContent = ""
+    )
     
     $safeCmdPath = "$SafeCmdRoot\scripts\safe-cmd-msgbox.ps1"
     
     $sb = [System.Text.StringBuilder]::new()
+    
+    # Include original profile content first (if exists and not placeholder)
+    if ($OriginalContent -and $OriginalContent -notmatch "This is a placeholder backup file") {
+        [void]$sb.AppendLine("# ============================================================")
+        [void]$sb.AppendLine("# Original Profile Content (preserved)")
+        [void]$sb.AppendLine("# ============================================================")
+        [void]$sb.AppendLine($OriginalContent.TrimEnd())
+        [void]$sb.AppendLine("")
+    }
     
     # Header
     [void]$sb.AppendLine("# ============================================================")
@@ -356,8 +368,14 @@ function Install-Profile {
         Write-Host "Backup already exists at: $backupPath (not overwritten)" -ForegroundColor Cyan
     }
     
+    # Read original content from backup (if exists)
+    $originalContent = ""
+    if (Test-Path $backupPath) {
+        $originalContent = Get-Content $backupPath -Raw -ErrorAction SilentlyContinue
+    }
+    
     # Generate and write profile
-    $profileContent = Generate-ProfileContent -Settings $settings
+    $profileContent = Generate-ProfileContent -Settings $settings -OriginalContent $originalContent
     $profileContent | Out-File -FilePath $ProfilePath -Encoding UTF8 -Force
     
     Write-Host "SafeCmd profile installed!" -ForegroundColor Green
