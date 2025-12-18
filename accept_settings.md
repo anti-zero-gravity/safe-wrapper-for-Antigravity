@@ -26,16 +26,6 @@ Remove-Item $PROFILE -Force
 **チャット欄から:**
 > /確認
 
-**期待する出力:**
-| コマンド | ダイアログ | 
-|----------|----------|
-| Remove-Item (rm, del) | 表示 | 
-| Move-Item (mv) | 表示 | 
-| Rename-Item (ren) | 表示 | 
-| Set-Content (sc) | 表示 | 
-| Clear-Content (clc) | 表示 | 
-| Copy-Item (cp) | 自動で許可 | 
-
 **PowerShell コンソールで:**
 ```powershell
 & "$env:USERPROFILE\.gemini\antigravity\scratch\safe-wrapper\scripts\safe-cmd-profile-manager.ps1" -Action status
