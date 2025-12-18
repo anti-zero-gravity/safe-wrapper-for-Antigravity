@@ -1,14 +1,14 @@
 # 現在のラップ設定
 
-## [DIALOG] ダイアログ表示
+## [DIALOG] ダイアログ表示　（自動に変更したい項目は下へ移動、保存してからチャット欄で/設定）
 
 - Remove-Item (rm, del) - ファイル/フォルダを削除
 - Move-Item (mv) - ファイル/フォルダを移動
-
-## [AUTO] 自動Accept
 - Set-Content (sc) - ファイルの内容を上書き
 - Clear-Content (clc) - ファイルの内容を空にする
 - Rename-Item (ren) - ファイル/フォルダをリネーム
+
+## [AUTO] 自動Accept　　（ダイアログ表示したい項目は上に移動、保存してからチャット欄で/設定）
 - Copy-Item (cp) - ファイル/フォルダをコピー
 
 # 設定解除方法

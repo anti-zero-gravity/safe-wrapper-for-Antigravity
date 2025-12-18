@@ -290,7 +290,7 @@ function Global:Get-SafeCmdStatus {
     Write-Host ""
 }
 
-Write-Host "Safe Command Wrapper loaded." -ForegroundColor Cyan
+
 '@)
     
     return $sb.ToString()
