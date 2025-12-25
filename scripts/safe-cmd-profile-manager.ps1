@@ -299,36 +299,61 @@ function Global:Get-SafeCmdStatus {
 # ============================================================
 # Actions
 # ============================================================
+# ============================================================
+# Core Logic - Target Paths
+# ============================================================
+function Get-TargetProfiles {
+    $docs = [Environment]::GetFolderPath("MyDocuments")
+    $profiles = @(
+        @{
+            Name = "PowerShell 7+ (Core)"
+            Path = Join-Path $docs "PowerShell\Microsoft.PowerShell_profile.ps1"
+        },
+        @{
+            Name = "Windows PowerShell 5.1"
+            Path = Join-Path $docs "WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+        }
+    )
+    return $profiles
+}
+
+# ============================================================
+# Actions
+# ============================================================
 function Show-Status {
     Write-Host ""
     Write-Host "=== Safe Command Profile Status ===" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "Profile Path: $ProfilePath"
     Write-Host "Settings File: $SettingsPath"
-    
-    if (Test-Path $ProfilePath) {
-        Write-Host "Profile Exists: YES" -ForegroundColor Green
-        $content = Get-Content $ProfilePath -Raw
-        if ($content -match "Safe Command Wrapper") {
-            Write-Host "SafeCmd Installed: YES" -ForegroundColor Green
-        } else {
-            Write-Host "SafeCmd Installed: NO" -ForegroundColor Yellow
-        }
-    } else {
-        Write-Host "Profile Exists: NO" -ForegroundColor Yellow
-        Write-Host "SafeCmd Installed: NO" -ForegroundColor Yellow
-    }
     
     if (Test-Path $SettingsPath) {
         Write-Host "Settings File Exists: YES" -ForegroundColor Green
         $settings = Parse-SettingsFile -Path $SettingsPath
-        Write-Host ""
-        Write-Host "Dialog Commands: $($settings.Dialog -join ', ')" -ForegroundColor Yellow
-        Write-Host "AutoAccept Commands: $($settings.AutoAccept -join ', ')" -ForegroundColor Green
+        Write-Host "  Dialog: $($settings.Dialog -join ', ')" -ForegroundColor Yellow
+        Write-Host "  AutoAccept: $($settings.AutoAccept -join ', ')" -ForegroundColor Green
     } else {
         Write-Host "Settings File Exists: NO" -ForegroundColor Red
     }
     Write-Host ""
+
+    $targets = Get-TargetProfiles
+    foreach ($target in $targets) {
+        Write-Host "--- $($target.Name) ---" -ForegroundColor Cyan
+        Write-Host "Path: $($target.Path)"
+        
+        if (Test-Path $target.Path) {
+            Write-Host "  Profile Exists: YES" -ForegroundColor Green
+            $content = Get-Content $target.Path -Raw
+            if ($content -match "Safe Command Wrapper") {
+                Write-Host "  SafeCmd Installed: YES" -ForegroundColor Green
+            } else {
+                Write-Host "  SafeCmd Installed: NO" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  Profile Exists: NO" -ForegroundColor Gray
+            Write-Host "  SafeCmd Installed: NO" -ForegroundColor Gray
+        }
+        Write-Host ""
+    }
 }
 
 function Install-Profile {
@@ -338,74 +363,89 @@ function Install-Profile {
     Write-Host "Parsed settings:" -ForegroundColor Cyan
     Write-Host "  Dialog: $($settings.Dialog -join ', ')" -ForegroundColor Yellow
     Write-Host "  AutoAccept: $($settings.AutoAccept -join ', ')" -ForegroundColor Green
-    
-    # Create directory if needed
-    $dir = Split-Path $ProfilePath -Parent
-    if (-not (Test-Path $dir)) {
-        New-Item -ItemType Directory -Path $dir -Force | Out-Null
-    }
-    
-    # Backup existing profile
-    $backupPath = "$ProfilePath$"  # e.g., Microsoft.PowerShell_profile.ps1$
-    
-    if (-not (Test-Path $backupPath)) {
-        # No backup exists yet - create one
-        if (Test-Path $ProfilePath) {
-            # Backup existing profile
-            Copy-Item -Path $ProfilePath -Destination $backupPath -Force
-            Write-Host "Backed up existing profile to: $backupPath" -ForegroundColor Green
-        } else {
-            # No original profile - create placeholder
-            $placeholder = @"
+    Write-Host ""
+
+    $targets = Get-TargetProfiles
+    foreach ($target in $targets) {
+        Write-Host "Installing for: $($target.Name)..." -ForegroundColor Cyan
+        $pPath = $target.Path
+
+        # Create directory if needed
+        $dir = Split-Path $pPath -Parent
+        if (-not (Test-Path $dir)) {
+            New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        }
+        
+        # Backup existing profile
+        $backupPath = "$pPath$"  # e.g., Microsoft.PowerShell_profile.ps1$
+        
+        if (-not (Test-Path $backupPath)) {
+            # No backup exists yet - create one
+            if (Test-Path $pPath) {
+                # Backup existing profile
+                Copy-Item -Path $pPath -Destination $backupPath -Force
+                Write-Host "  Backed up existing profile to: $backupPath" -ForegroundColor Green
+            } else {
+                # No original profile - create placeholder
+                $placeholder = @"
 # This is a placeholder backup file.
 # No PowerShell profile existed before Safe Command Wrapper was installed.
 # Created: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 "@
-            $placeholder | Out-File -FilePath $backupPath -Encoding UTF8 -Force
-            Write-Host "No existing profile found. Created placeholder backup." -ForegroundColor Yellow
+                $placeholder | Out-File -FilePath $backupPath -Encoding UTF8 -Force
+                Write-Host "  No existing profile found. Created placeholder backup." -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "  Backup already exists. Skipping backup." -ForegroundColor Gray
         }
-    } else {
-        Write-Host "Backup already exists at: $backupPath (not overwritten)" -ForegroundColor Cyan
+        
+        # Read original content from backup (if exists)
+        $originalContent = ""
+        if (Test-Path $backupPath) {
+            $originalContent = Get-Content $backupPath -Raw -ErrorAction SilentlyContinue
+        }
+        
+        # Generate and write profile
+        $profileContent = Generate-ProfileContent -Settings $settings -OriginalContent $originalContent
+        $profileContent | Out-File -FilePath $pPath -Encoding UTF8 -Force
+        
+        Write-Host "  SafeCmd profile installed!" -ForegroundColor Green
     }
-    
-    # Read original content from backup (if exists)
-    $originalContent = ""
-    if (Test-Path $backupPath) {
-        $originalContent = Get-Content $backupPath -Raw -ErrorAction SilentlyContinue
-    }
-    
-    # Generate and write profile
-    $profileContent = Generate-ProfileContent -Settings $settings -OriginalContent $originalContent
-    $profileContent | Out-File -FilePath $ProfilePath -Encoding UTF8 -Force
-    
-    Write-Host "SafeCmd profile installed!" -ForegroundColor Green
+
+    Write-Host ""
     Write-Host "Restart PowerShell to apply changes." -ForegroundColor Cyan
 }
 
 function Uninstall-Profile {
-    $backupPath = "$ProfilePath$"
-    
-    if (Test-Path $ProfilePath) {
-        Remove-Item $ProfilePath -Force
-        Write-Host "Removed SafeCmd profile." -ForegroundColor Yellow
-    } else {
-        Write-Host "No profile to remove." -ForegroundColor Gray
-    }
-    
-    # Restore from backup if it exists and is not a placeholder
-    if (Test-Path $backupPath) {
-        $backupContent = Get-Content $backupPath -Raw -ErrorAction SilentlyContinue
-        if ($backupContent -match "This is a placeholder backup file") {
-            # It's a placeholder - just remove it
-            Remove-Item $backupPath -Force
-            Write-Host "Removed placeholder backup." -ForegroundColor Gray
+    $targets = Get-TargetProfiles
+    foreach ($target in $targets) {
+        Write-Host "Uninstalling for: $($target.Name)..." -ForegroundColor Cyan
+        $pPath = $target.Path
+        $backupPath = "$pPath$"
+        
+        if (Test-Path $pPath) {
+            Remove-Item $pPath -Force
+            Write-Host "  Removed SafeCmd profile." -ForegroundColor Yellow
         } else {
-            # Restore original profile
-            Move-Item -Path $backupPath -Destination $ProfilePath -Force
-            Write-Host "Restored original profile from backup." -ForegroundColor Green
+            Write-Host "  No profile to remove." -ForegroundColor Gray
+        }
+        
+        # Restore from backup if it exists and is not a placeholder
+        if (Test-Path $backupPath) {
+            $backupContent = Get-Content $backupPath -Raw -ErrorAction SilentlyContinue
+            if ($backupContent -match "This is a placeholder backup file") {
+                # It's a placeholder - just remove it
+                Remove-Item $backupPath -Force
+                Write-Host "  Removed placeholder backup." -ForegroundColor Gray
+            } else {
+                # Restore original profile
+                Move-Item -Path $backupPath -Destination $pPath -Force
+                Write-Host "  Restored original profile from backup." -ForegroundColor Green
+            }
         }
     }
     
+    Write-Host ""
     Write-Host "Restart PowerShell to apply changes." -ForegroundColor Cyan
 }
 
