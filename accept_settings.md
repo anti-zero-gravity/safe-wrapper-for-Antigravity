@@ -4,11 +4,11 @@
 
 - Remove-Item (rm, del) - ファイル/フォルダを削除
 - Move-Item (mv) - ファイル/フォルダを移動
-- Set-Content (sc) - ファイルの内容を上書き
 - Clear-Content (clc) - ファイルの内容を空にする
 - Rename-Item (ren) - ファイル/フォルダをリネーム
 
 ## [AUTO] 自動Accept　　（ダイアログ表示したい項目は上に移動、保存してからチャット欄で/設定）
+- Set-Content (sc) - ファイルの内容を上書き
 - Copy-Item (cp) - ファイル/フォルダをコピー
 
 # 設定解除方法

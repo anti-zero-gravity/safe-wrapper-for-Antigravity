@@ -413,7 +413,30 @@ function Install-Profile {
     }
 
     Write-Host ""
-    Write-Host "Restart PowerShell to apply changes." -ForegroundColor Cyan
+    
+    # === Memory Cleanup & Reload ===
+    # Remove all managed wrapper functions from current session
+    # IMPORTANT: Use original cmdlet to avoid triggering our own wrapper dialogs
+    Write-Host "Refreshing current session..." -ForegroundColor Cyan
+    foreach ($cmdName in $CommandTemplates.Keys) {
+        # Remove Global Function (using original cmdlet)
+        if (Test-Path "function:Global:$cmdName") {
+            Microsoft.PowerShell.Management\Remove-Item "function:Global:$cmdName" -Force -ErrorAction SilentlyContinue
+        }
+        # Remove Global Aliases (using original cmdlet)
+        if ($CommandTemplates[$cmdName].Aliases) {
+            foreach ($alias in $CommandTemplates[$cmdName].Aliases) {
+                Microsoft.PowerShell.Management\Remove-Item "alias:$alias" -Force -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    
+    # Reload profile to apply new settings
+    if (Test-Path $PROFILE) {
+        . $PROFILE
+    }
+    
+    Write-Host "Settings applied to current session!" -ForegroundColor Green
 }
 
 function Uninstall-Profile {
