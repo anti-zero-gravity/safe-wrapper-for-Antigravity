@@ -9,6 +9,7 @@ All notable changes to this project will be documented in this file.
 
 ### バグ修正
 - **メモリクリーン処理の自己参照バグ**: 設定適用時に `Remove-Item` でラッパー関数を削除しようとすると、ラップされた `Remove-Item` 自体が呼ばれてダイアログが表示される問題を修正。オリジナルの Cmdlet (`Microsoft.PowerShell.Management\Remove-Item`) を使用するように変更。
+- **2窓環境でのダイアログ非表示問題**: 複数のインスタンスやウィンドウを開いている環境で、確認ダイアログが他のウィンドウの下に隠れて見えなくなる問題を修正。`MessageBoxOptions.ServiceNotification` を使用して強制的に最前面に表示するように変更。
 
 ### ドキュメント
 - README.md から冗長な Profile Snapshot セクションを削除
