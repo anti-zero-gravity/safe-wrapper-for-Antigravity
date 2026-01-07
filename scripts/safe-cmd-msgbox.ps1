@@ -52,7 +52,8 @@ if ($Danger) {
         $title,
         [System.Windows.Forms.MessageBoxButtons]::YesNo,
         [System.Windows.Forms.MessageBoxIcon]::$Icon,
-        [System.Windows.Forms.MessageBoxDefaultButton]::Button2
+        [System.Windows.Forms.MessageBoxDefaultButton]::Button2,
+        [System.Windows.Forms.MessageBoxOptions]::ServiceNotification
     )
     
     if ($result -ne [System.Windows.Forms.DialogResult]::Yes) {
