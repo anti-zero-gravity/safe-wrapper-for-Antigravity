@@ -33,7 +33,7 @@ All notable changes to this project will be documented in this file.
 ## [1.1.0] - 2026-01-07
 
 ### 新機能
-- **設定の即時反映**: `/設定` 実行後、PowerShell の再起動が不要になりました。設定変更は現在のセッションに即座に反映されます。
+- **設定の反映方法**: `/設定` 実行後、`Ctrl+Shift+P` > `Reload Window` でAntigravity環境全体に確実に反映させる手順を確立。
 
 ### バグ修正
 - **メモリクリーン処理の自己参照バグ**: 設定適用時に `Remove-Item` でラッパー関数を削除しようとすると、ラップされた `Remove-Item` 自体が呼ばれてダイアログが表示される問題を修正。オリジナルの Cmdlet (`Microsoft.PowerShell.Management\Remove-Item`) を使用するように変更。
