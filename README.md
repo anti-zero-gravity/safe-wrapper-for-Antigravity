@@ -1,16 +1,8 @@
 # Safe Command Wrapper for Antigravity
 
-![PowerShell 7](https://img.shields.io/badge/Recommended-PowerShell_7_(Core)-blue?style=for-the-badge&logo=powershell)
 ![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey?style=for-the-badge&logo=windows)
 
-> [!IMPORTANT]
-> **推奨環境：PowerShell 7 (Core)**
-> 
-> 本ツールは Windows PowerShell 5.1 にも対応していますが、**Antigravity (AI Agent) と同じ「PowerShell 7 (Core)」の常用を強く推奨します。**
->
-> 1.  **AIとの完全同期**: Antigravity はデフォルトで `pwsh` (v7+) を使用します。あなたも同じ環境を使うことで、環境差異によるエラーや挙動不審を未然に防ぎ、AIとの協業効率を最大化できます。
-> 2.  **文字化け回避**: PowerShell 7 は UTF-8 をネイティブサポートしているため、モダンなツール出力やAIテキストの結合時に発生する文字化けトラブルから解放されます。
-> 3.  **脱レガシー**: メンテナンスモードに入った 5.1 ではなく、進化し続ける 7 環境で、より高速で機能的なシェル体験を得られます。
+本ツールは **Windows PowerShell 5.1** および **PowerShell 7 (Core)** の両方に対応しており、どちらの環境でも Antigravity (AI Agent) による危険なコマンド実行を検出・保護します。
 
 ---
 
