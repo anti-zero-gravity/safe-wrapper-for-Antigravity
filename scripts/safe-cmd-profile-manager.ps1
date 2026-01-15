@@ -212,7 +212,52 @@ function Generate-ProfileContent {
     
     $sb = [System.Text.StringBuilder]::new()
     
-    # Include original profile content first (if exists and not placeholder)
+    # ============================================================
+    # Antigravity/VSCode Terminal Blindness Prevention
+    # These escape codes and decorations interfere with AI output parsing
+    # ============================================================
+    [void]$sb.AppendLine("# ============================================================")
+    [void]$sb.AppendLine("# Antigravity/VSCode Terminal Detection (AI Clean Environment)")
+    [void]$sb.AppendLine("# Prevents 'terminal blindness' by disabling decorations that")
+    [void]$sb.AppendLine("# interfere with AI output parsing (OSC 633, ANSI, etc.)")
+    [void]$sb.AppendLine("# ============================================================")
+    [void]$sb.AppendLine(@'
+# Detect Antigravity/VSCode integrated terminal or non-interactive mode
+if ($env:TERM_PROGRAM -eq 'vscode' -or $env:ANTIGRAVITY_AGENT -or -not [Environment]::UserInteractive) {
+    # === Disable output-polluting features for AI parsing ===
+    
+    # Disable progress bars (prevent ANSI progress sequences)
+    $Global:ProgressPreference = 'SilentlyContinue'
+    
+    # Disable PSReadLine decorations (syntax highlighting, predictions)
+    if (Get-Module -Name PSReadLine -ErrorAction SilentlyContinue) {
+        Set-PSReadLineOption -PredictionSource None -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -Colors @{ None = '' } -ErrorAction SilentlyContinue
+    }
+    
+    # Neutralize prompt customizations (Oh My Posh, Starship, etc.)
+    # Set minimal PS1 to avoid escape sequence injection
+    function Global:prompt { "PS> " }
+    
+    # Clear PROMPT and PROMPT_COMMAND equivalents
+    Remove-Variable -Name PROMPT -Scope Global -ErrorAction SilentlyContinue
+    $env:PROMPT = $null
+    
+    # Disable ANSI/VT escape sequences in console output
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $PSStyle.OutputRendering = 'PlainText'
+    }
+    $env:NO_COLOR = "1"
+    $env:TERM = "dumb"
+    
+    # Note: We continue loading SafeCmd wrappers below even in AI mode
+    # because they still provide safety features, just with clean output
+}
+
+'@)
+    [void]$sb.AppendLine("")
+    
+    # Include original profile content (if exists and not placeholder)
     if ($OriginalContent -and $OriginalContent -notmatch "This is a placeholder backup file") {
         [void]$sb.AppendLine("# ============================================================")
         [void]$sb.AppendLine("# Original Profile Content (preserved)")
