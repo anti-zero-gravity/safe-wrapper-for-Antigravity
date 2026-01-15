@@ -232,7 +232,6 @@ if ($env:TERM_PROGRAM -eq 'vscode' -or $env:ANTIGRAVITY_AGENT -or -not [Environm
     # Disable PSReadLine decorations (syntax highlighting, predictions)
     if (Get-Module -Name PSReadLine -ErrorAction SilentlyContinue) {
         Set-PSReadLineOption -PredictionSource None -ErrorAction SilentlyContinue
-        Set-PSReadLineOption -Colors @{ None = '' } -ErrorAction SilentlyContinue
     }
     
     # Neutralize prompt customizations (Oh My Posh, Starship, etc.)

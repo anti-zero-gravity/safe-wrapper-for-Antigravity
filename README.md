@@ -36,7 +36,7 @@
 | **PowerShell Core** | 7.x+ | `...\Documents\PowerShell\Microsoft.PowerShell_profile.ps1` |
 | **Windows PowerShell** | 5.1 | `...\Documents\WindowsPowerShell\Microsoft.PowerShell_profile.ps1` |
 
-設定ファイル `accept_settings.md` は両環境で共有されます。片方で設定を変更して適用（`/設定`）すれば、もう片方にも自動的に反映されます。
+設定ファイル `accept_settings.md` は両環境で共有されます。
 
 
 ---

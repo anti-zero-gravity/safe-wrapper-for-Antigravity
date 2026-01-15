@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.1] - 2026-01-15
+
+### バグ修正
+- **PSReadLine Colors 設定エラー**: `Set-PSReadLineOption -Colors @{ None = '' }` で `'None' is not a valid color property` エラーが発生する問題を修正。`None` は有効なカラープロパティ名ではないため、この行を削除。
+
+---
+
 ## [1.2.0] - 2026-01-15
 
 ### 新機能
