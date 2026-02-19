@@ -90,7 +90,6 @@ if ($env:TERM_PROGRAM -eq 'vscode' -or $env:ANTIGRAVITY_AGENT -or -not [Environm
 ローカルのGEMINI.mdに以下を追記：
 
 PowerShellの Remove-Item を使用した際、権限不足やファイルロックにより削除が失敗した場合、以下の行為を厳格に禁止します。
-- Force スイッチを付けての強制的な削除試行
 - 自動的なリトライ
 - Python (shutil.rmtree, os.remove) 等の他ツールによる代替削除
 
